@@ -20,7 +20,7 @@ The data files provided consists of a training set (train.csv) and test set (tes
 Since this project employs supervised learning methods, I intend to use only the training set. The dataset will be split into 70% training and 30% testing, using observed values to evaluate predictive accuracy. 
 
 ## Project outline 
-First, I will load the data, perform initial data manipulation and cleaning, and address missing values. Next, I will perform exploratory data analysis, employing visualization and inferential techniques to identify trends, patterns, and relationships. After examining the data, I will perform some final tidying before setting up the models. I will split the train.csv into a train and test set (70/30), build a recipe, and create validation sets to generate multiple estimations of the test error rate. We then fit 6 supervised learning models (logistic, LDA, QDA, elastic net, KNN, and pruned decision trees) before assessing their performance using several evaluation metrics. From there, we will select the best model and fit it to our testing data.
+The raw dataset is read and examined, followed by initial data cleaning and transformation. Exploratory data analysis is performed using visualization and inferential techniques. Fnal tidying of the dataset is performed before setting up the models. The train.csv is split into a train and test set (70/30), a recipe is built, and validation sets are created to generate multiple estimates. Six supervised models are fit to the training set; each model's performance is evaluated based on several error metrics, and the top 3 are chosen for the test. Results of the best models are analyzed, and a summary of the project is provided. 
 
 ## Methods used 
 * Statistical inference
