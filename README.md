@@ -23,11 +23,21 @@ Since this project employs supervised learning methods, I intend to use only the
 First, I will load the data, perform initial data manipulation and cleaning, and address missing values. Next, I will perform exploratory data analysis, employing visualization and inferential techniques to identify trends, patterns, and relationships. After examining the data, I will perform some final tidying before setting up the models. I will split the train.csv into a train and test set (70/30), build a recipe, and create validation sets to generate multiple estimations of the test error rate. We then fit 6 supervised learning models (logistic, LDA, QDA, elastic net, KNN, and pruned decision trees) before assessing their performance using several evaluation metrics. From there, we will select the best model and fit it to our testing data.
 
 ## Methods used 
-- Statistical inference
-- Feature engineering
-- Data visualization
-- Predictive modeling
-  + Supervised learning 
-  + Model tuning
-  + Cross-validation 
-  + Evaluation metrics 
+* Statistical inference
+* Feature selection 
+* Feature engineering 
+    * Imputation
+    * Categorical encoding 
+    * Standardization 
+* Data visualization
+* Resampling 
+* Predictive modeling
+    * Supervised learning
+        * Logistic regression
+        * Linear discriminant analysis
+        * K-nearest neighbors
+        * Elastic net regression (Ridge) 
+        * Quadratic discriminant analysis
+        * Pruned decision trees 
+    * Cross-validation 
+    * Evaluation metrics 
