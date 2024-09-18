@@ -32,12 +32,9 @@ The raw dataset is read and examined, followed by initial data cleaning and tran
 * Data visualization
 * Resampling 
 * Predictive modeling
-    * Supervised learning
-        * Logistic regression
-        * Linear discriminant analysis
-        * K-nearest neighbors
-        * Elastic net regression (Ridge) 
-        * Quadratic discriminant analysis
-        * Pruned decision trees 
-    * Cross-validation 
-    * Evaluation metrics 
+    * Logistic regression
+    * Linear discriminant analysis
+    * K-nearest neighbors
+    * Elastic net regression (Ridge) 
+    * Quadratic discriminant analysis
+    * Pruned decision trees 
