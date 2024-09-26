@@ -3,7 +3,7 @@
 ## Project Description 
 This repository contains the code for the final course project of PSTAT 131 (Statistical Machine Learning) at the University of California, Santa Barbara taken in Winter 2023. Students are tasked with implementing machine learning techniques to execute predictive modeling, using R Markdown to generate a coherent report of figures, code, and key insights and findings. 
 
-This project aims to develop a machine learning model that predicts the loan eligibility of customers based on information provided in their application profile; a binary classification problem in which we predict whether a given loan would be approved or not. To this end, I will build, train, and evaluate several supervised learning models, using R data science libraries (tidymodels, ggplot, dplyr) to facilitate data analysis and modeling. 
+This project aims to develop a machine learning model that predicts the loan eligibility of customers based on information provided in their application profile; a binary classification problem in which we predict whether a given loan would be approved or not. To this end, I will build, train, and evaluate several supervised learning models, using R data science libraries (tidymodels, ggplot, dplyr, plotly) to facilitate data manipulation, analysis, and modeling. 
 
 Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement). 
 
