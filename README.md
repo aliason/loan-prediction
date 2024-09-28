@@ -21,18 +21,23 @@ Since this project only employs supervised learning, I will use only the trainin
 First, I will import the raw dataset, examine its records, and perform initial data manipulation and cleaning. I will then conduct exploratory data analysis to visualize relationships and covariability, report my findings, and perform final tidying of the dataset before setting up the models. I split train.csv into a train and test set (70/30) and establish validation sets to facilitate model selection and tuning. I train, fit, and evaluate 6 classification models of varying complexity and flexibility, ranking them based on ROC-AUC. The top 3 are chosen for testing and fit to the test set. I compare, assess, and provide a thorough analysis of their performance and conclude with a detailed summary of my findings. 
 
 ## Methods used 
-* Statistical inference
-* Feature selection 
-* Feature engineering 
-    * Imputation
-    * Categorical encoding 
-    * Standardization 
+* Data collection 
+* Data cleaning 
+* Exploratory data analysis 
 * Data visualization
-* Resampling 
-* Predictive modeling
+* Feature engineering
+    * Imputation
+    * Categorical encoding
+    * Standardization 
+    * Resampling 
+* Supervised learning 
     * Logistic regression
     * Linear discriminant analysis
     * K-nearest neighbors
     * Elastic net regression (Ridge) 
     * Quadratic discriminant analysis
     * Pruned decision trees 
+* Model evaluation
+    * K-fold cross-validation
+    * ROC-AUC 
+    * Confusion matrix 
