@@ -8,15 +8,15 @@ My project tackles a binary classification problem: predicting loan eligibility 
 Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement). 
 
 ## Problem Statement
-Loans are a necessity of the modern world, supporting finanical stability and driving economic growth. Many types loans exist for different purposes, among which are home loans, which we intend to tackle in this problem. 
+Loans are a necessity of the modern world, supporting financial stability and driving economic growth. Many types loans exist for different purposes, among which are home loans, which we intend to tackle in this problem. 
 
 Dream Housing Finance company deals in all home loans. They have a presence across all urban, semi-urban, and rural areas. Customers first apply for a home loan, after which the company assesses their eligibility. 
 
 The company aims to automate the loan eligibility process (real-time) based on customer details, such as gender, marital status, education, and income, provided in their application form. 
 
-The goal of this project is to identify customer segments that are most likely to be eligible for home loans, enabling the company to target these segments more efficienctly. The company have provided a partial dataset to support the development of this model. 
+The goal of this project is to identify customer segments that are most likely to be eligible for home loans, enabling the company to target these segments more efficiently. The company have provided a partial dataset to support the development of this model. 
 
-## Dataset Sources
+## Data Sources
 The data files provided consists of a training set (train.csv) and test set (test.csv.). The test is identical to the training set except for the loan status to be predicted. The training set consists of 614 observations on 13 variables; the test set consists of 367 observations on 12. 
 
 As my project will apply supervised learning methods, I will only be using the training set. I will perform a 70/30 split on train.csv and utilize the response values to assess predictive accuracy. 
