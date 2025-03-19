@@ -36,6 +36,7 @@ Techniques:
     * Feature engineering
         * Scaling, discretization, and categorical encoding
     * Outlier detection
+        * Log transformations 
 * Data exploration 
     * Descriptive analysis 
     * Data visualization (histograms, barplots, scatterplots, etc.)
