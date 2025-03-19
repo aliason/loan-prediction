@@ -24,9 +24,9 @@ As my project will apply supervised learning methods, I will only be using the t
 ## Project Roadmap  
 The project will follow a structured approach, starting with data collection and processing, followed by exploratory analysis, model training, and evaluation.
 
-First, I will load the dataset into R, examine its structure, and perform initial data cleaning, addressing missing values, duplicates, and inconsistencies and transforming variables for analysis. Next, I conduct EDA, analyzing individual and paired features to identify relationships and covariability, using these insights to inform further pre-processing. The dataset undergoes final tidying before model development.
+First, I will load the dataset into R, examine its structure, and perform initial data tidying, addressing missing values, duplicates, and inconsistencies. Next, I conduct exploratory data analysis (EDA), analyzing variables one by one to identify relationships and covariability, using these insights to guide further preprocessing. The dataset undergoes final tidying before model development.
 
-I split the data into train vs. test sets (70/30), create a preprocessing recipe, and establish validation sets (10) to facilitate model selection and tuning. Models are trained in separate RDA files and loaded back in for evaluation. The models are evaluated based on ROC-AUC, with the top 3 selected for testing. The project concludes with a detailed summary of my takeaways and findings. 
+Next, I split the data into train vs. test sets (70/30), create a preprocessing recipe, and establish validation sets (10) to optimize model selection and tuning. Models are trained and stored in separate RDA files before being loaded back in for evaluation. Performance is evaluated based on ROC-AUC, and the top 3 selected for testing. The project concludes with a detailed summary of my takeaways and findings. 
 
 ## Methods used 
 Techniques: 
