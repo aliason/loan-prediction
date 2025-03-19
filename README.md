@@ -12,7 +12,7 @@ Loans are a necessity of the modern world, supporting finanical stability and dr
 
 Dream Housing Finance company deals in all home loans. They have a presence across all urban, semi-urban, and rural areas. Customers first apply for a home loan, after which the company assesses their eligibility. 
 
-The company arims to automate the loan eligibility process (real-time) based on customer details, such as gender, marital status, education, and income, provided in their application form. 
+The company aims to automate the loan eligibility process (real-time) based on customer details, such as gender, marital status, education, and income, provided in their application form. 
 
 The goal of this project is to identify customer segments that are most likely to be eligible for home loans, enabling the company to target these segments more efficienctly. The company have provided a partial dataset to support the development of this model. 
 
