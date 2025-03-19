@@ -1,43 +1,63 @@
 # Loan Prediction Machine Learning Project
 
 ## Project Description 
-This repository contains the code for the final course project of PSTAT 131 (Statistical Machine Learning) at the University of California, Santa Barbara taken in Winter 2023. Students implement machine learning techniques to solve a problem of their choosing and utilize R Markdown to generate a coherent report of key insights and findings. 
+This repository contains the code for the final course project of PSTAT 131 (Statistical Machine Learning) at UCSB. Students are tasked with building machine learning models to solve a real-world problem of their choosing, utilizing R Markdown to generate a coherent report of key insights and findings.
 
-This project aims to develop a machine learning model to predict loan eligibility based on select applicant demographics; a binary classification problem in which we predict whether a given loan will be approved or not. To this end, I will be conducting an in-depth analysis of applicant features and implementing multiple techniques to yield the most accurate model for the problem. 
+My project tackles a binary classification problem: predicting loan eligibility based on select applicant data. I take a structured and analytical approach, incrementally traversing the data science life cycle and leveraging multiple techniques to yield the best model for the problem. 
 
 Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement). 
 
 ## Problem Statement
-Loans are a necessity of the modern world, supporting consumption, economic growth, and business operations. Many types loans exist for different purposes across various stages of life, among which are home loans, which we intend to tackle in this problem. 
+Loans are a necessity of the modern world, supporting finanical stability and driving economic growth. Many types loans exist for different purposes, among which are home loans, which we intend to tackle in this problem. 
 
-Dream Housing Finance company deals in all home loans. They have a presence across all urban, semi-urban and rural areas. Customers can apply for a home loan after the company validates their eligibility. The company wants to automate the loan eligibility process (real-time) based on customer detail provided in their application. The company wants to identify customer segments that are eligible for loan amounts so that they can specifically target these customers.
+Dream Housing Finance company deals in all home loans. They have a presence across all urban, semi-urban, and rural areas. Customers first apply for a home loan, after which the company assesses their eligibility. 
 
-## Dataset description
-The data files provided consists of a training set (train.csv) and test set (test.csv), which is identical to the training set except for the loan status to be predicted. The training set consists of 614 observations on 13 variables; the testing consists of 367 observations on 12. 
+The company arims to automate the loan eligibility process (real-time) based on customer details, such as gender, marital status, education, and income, provided in their application form. 
 
-Since this project only employs supervised learning, I will use only the training set. I will be performing a 70/30 split on the train.csv and utilize the response values to evaluate predictive accuracy. 
+The goal of this project is to identify customer segments that are most likely to be eligible for home loans, enabling the company to target these segments more efficienctly. The company have provided a partial dataset to support the development of this model. 
 
-## Project outline 
-First, I will import the raw dataset, examine its records, and perform initial data manipulation and cleaning. I will then conduct exploratory data analysis to visualize relationships and covariability, report my findings, and perform final tidying of the dataset before setting up the models. I split train.csv into a train and test set (70/30) and establish validation sets to facilitate model selection and tuning. I train, fit, and evaluate 6 classification models of varying complexity and flexibility, ranking them based on ROC-AUC. The top 3 are chosen for testing and fit to the test set. I compare, assess, and provide a thorough analysis of their performance and conclude with a detailed summary of my findings. 
+## Dataset Sources
+The data files provided consists of a training set (train.csv) and test set (test.csv.). The test is identical to the training set except for the loan status to be predicted. The training set consists of 614 observations on 13 variables; the test set consists of 367 observations on 12. 
+
+As my project will apply supervised learning methods, I will only be using the training set. I will perform a 70/30 split on train.csv and utilize the response values to assess predictive accuracy. 
+
+## Project Roadmap  
+The project will follow a structured approach, starting with data collection and processing, followed by exploratory analysis, model training, and evaluation.
+
+First, I will load the dataset into R, examine its structure, and perform initial data cleaning: address missing values, duplicates, and inconsistencies and transform variables to prepare for analysis. Next, I conduct EDA, applying statistical analysis and data visualization techniques to explore trends, identify relationships, and infer causality, using these insights to inform further pre-processing. The dataset undergoes final tidying before model development.
+
+I split the data into train vs. test sets (70/30), create a preprocessing recipe, and establish validation sets (10) to facilitate model selection and tuning. Models are trained in separate RDA files and loaded back in for evaluation. The models are evaluated based on ROC-AUC, with the top 3 selected for testing. The project concludes with a detailed summary of my takeaways and findings. 
 
 ## Methods used 
-* Data collection 
-* Data cleaning 
-* Exploratory data analysis 
-* Data visualization
-* Feature engineering
-    * Imputation
-    * Categorical encoding
-    * Standardization 
-    * Resampling 
-* Supervised learning 
-    * Logistic regression
-    * Linear discriminant analysis
-    * K-nearest neighbors
-    * Elastic net regression (Ridge) 
-    * Quadratic discriminant analysis
-    * Pruned decision trees 
-* Model evaluation
-    * K-fold cross-validation
-    * ROC-AUC 
-    * Confusion matrix 
+Techniques: 
+* Data processing
+    * Missing values (imputation via MICE)
+    * Duplicates
+    * Feature engineering
+        * Scaling, discretization, and categorical encoding
+    * Outlier detection
+* Data exploration 
+    * Descriptive analysis 
+    * Data visualization (histograms, barplots, scatterplots, etc.)
+    * Variation analysis
+    * Correlation analysis (heatmaps, corrplots)
+    * Inferential statistics (t-tests, ANOVA, regression) 
+* Data modeling
+    * Machine learning 
+        * Logistic regression
+        * Linear discriminant analysis (LDA) 
+        * K-nearest neighbors (KNN)
+        * Elastic net regression (Ridge) 
+        * Quadratic discriminant analysis (QDA)
+        * Pruned decision trees 
+    * Resampling techniques  
+        * Grid search 
+        * K-fold cross-validation 
+    * Model evaluation
+        * Model evaluation metrics (ROC-AUC)
+        * Confusion matrix 
+
+Tools
+* R (tidyverse, corrplot, ggplot2, dplyr, finalfit, MASS, MICE, kableExtra)
+* Markdown (Rmd)
+* Excel (codebook) 
