@@ -39,9 +39,9 @@ Techniques:
         * Log transformations 
 * Data exploration 
     * Descriptive analysis 
-    * Data visualization (histograms, barplots, scatterplots, etc.)
-    * Variation analysis
     * Correlation analysis (heatmaps, corrplots)
+    * Feature analysis 
+    * Data visualization (histograms, barplots, scatterplots, etc.)
     * Inferential statistics (t-tests, ANOVA, regression) 
 * Data modeling
     * Machine learning 
