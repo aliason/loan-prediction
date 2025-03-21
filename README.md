@@ -29,20 +29,19 @@ First, I will load the dataset into R, examine its structure, and perform initia
 Next, I split the data into train vs. test sets (70/30), create a preprocessing recipe, and establish validation sets (10) to optimize model selection and tuning. Models are trained and stored in separate RDA files before being loaded back in for evaluation. Performance is evaluated based on ROC-AUC, and the top 3 selected for testing. The project concludes with a detailed summary of my takeaways and findings. 
 
 ## Methods used 
-Techniques: 
 * Data processing
     * Missing values (imputation via MICE)
     * Duplicates
     * Feature engineering
-        * Scaling, discretization, and categorical encoding
+        * Scaling, binning, and categorical encoding
     * Outlier detection
-        * Log transformations 
-* Data exploration 
-    * Descriptive analysis 
+        * Log transformation 
+* Exploratory data analysis (EDA)
+    * Descriptive statistics
     * Correlation analysis (heatmaps, corrplots)
     * Feature analysis 
-    * Data visualization (histograms, barplots, scatterplots, etc.)
-    * Inferential statistics (t-tests, ANOVA, regression) 
+    * Data visualization (histograms, barplots, scatterplots)
+    * Inferential statistics (t-tests, ANOVA) 
 * Data modeling
     * Machine learning 
         * Logistic regression
