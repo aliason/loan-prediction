@@ -22,42 +22,44 @@ The data files provided consists of a training set (train.csv) and test set (tes
 As my project will apply supervised learning methods, I will only be using the training set. I will perform a 70/30 split on train.csv and utilize the response values to assess predictive accuracy. 
 
 ## Project Roadmap  
-The project will follow a structured approach, starting with data collection and processing, followed by exploratory analysis, model training, and evaluation.
+The project will follow a structured approach, starting with data processing and cleaning, followed by data exploration, analysis, and modeling. 
 
-First, I will load the dataset into R, examine its structure, and perform initial data tidying, addressing missing values, duplicates, and inconsistencies. Next, I conduct exploratory data analysis (EDA), analyzing variables one by one to identify relationships and covariability, using these insights to guide further preprocessing. The dataset undergoes final tidying before model development.
+First, I will load the dataset into R, examine its structure, and perform initial data tidying to address errors and inconsistencies. Next, I will conduct exploratory analysis (EDA), examining variables one by one to analyze relationships, trends, and variability. Insights derived from this step will guide further preprocessing. The dataset undergoes final tidying before modeling.
 
-Next, I split the data into train vs. test sets (70/30), create a preprocessing recipe, and establish validation sets (10) to optimize model selection and tuning. Models are trained and stored in separate RDA files before being loaded back in for evaluation. Performance is evaluated based on ROC-AUC, and the top 3 selected for testing. The project concludes with a detailed summary of my takeaways and findings. 
+To begin: I perform a 70/30 (train/test) split, create a preprocessing recipe, and establish validation sets (10) to facilitate model selection and tuning. Models are trained in separate RDA files before being loaded back in for evaluation. Performance is evaluated on ROC-AUC, with the top 3 models are selected for testing. The project concludes with a detailed summary of key takeaways and findings. 
 
 ## Methods used 
 * Data processing
     * Missing values (imputation via MICE)
     * Duplicates
-    * Feature engineering
-        * Scaling, binning, and categorical encoding
-    * Outlier detection
+    * Data transformation
+        * Scaling (standardization), binning, categorical encoding. 
         * Log transformation 
 * Exploratory data analysis (EDA)
-    * Descriptive statistics
-    * Correlation analysis (heatmaps, corrplots)
+    * Distributional analysis (univariate + bivariate) 
     * Feature analysis 
+    * Correlation analysis (heatmaps, corrplots)
+    * Inferential statistics 
     * Data visualization (histograms, barplots, scatterplots)
-    * Inferential statistics (t-tests, ANOVA) 
 * Data modeling
-    * Machine learning 
+    * Algorithms: 
         * Logistic regression
         * Linear discriminant analysis (LDA) 
         * K-nearest neighbors (KNN)
         * Elastic net regression (Ridge) 
         * Quadratic discriminant analysis (QDA)
         * Pruned decision trees 
-    * Resampling techniques  
+    * Resampling techniques: 
         * Grid search 
         * K-fold cross-validation 
-    * Model evaluation
-        * Model evaluation metrics (ROC-AUC)
+    * Model evaluation: 
+        * Evaluation metrics (ROC-AUC) 
         * Confusion matrix 
+        * Lollipop plots (comparative) 
 
 Tools
-* R (tidyverse, corrplot, ggplot2, dplyr, finalfit, MASS, MICE, kableExtra)
-* Markdown (Rmd)
-* Excel (codebook) 
+* R + Markdown: 
+    * Visualization: ggplot2, ggthemes, corrplot, gridExtra, kableExtra
+    * Analysis: tidyverse, dplyr, plyr, corrr, naniar, MASS, MICE
+    * Modeling: tidymodels, discrim, klaR, pROC, yardstick, finalfit
+* Excel (codebook)
