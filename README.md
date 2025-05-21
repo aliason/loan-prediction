@@ -38,5 +38,5 @@ The project concludes with a detailed summary of key takeaways and findings.
 
 Tools
 * R + libraries (ggplot2, tidyverse, corrplot, MASS, and more). 
-* Markdown
+* R Markdown
 * Excel (codebook) 
