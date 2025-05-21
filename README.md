@@ -26,7 +26,7 @@ The project will follow a structured approach, starting with data processing and
 
 First, I will load the dataset into R, examine its structure, and perform initial data tidying to address errors and inconsistencies. Next, I will conduct exploratory analysis (EDA), examining variables one by one to analyze relationships, trends, and variability. Insights derived from this step will guide further preprocessing. The dataset undergoes final tidying before modeling.
 
-To begin: I perform a 70/30 (train/test) split, create a preprocessing recipe, and establish validation sets (10) to facilitate model selection and tuning. Models are trained in separate RDA files before being loaded back in for evaluation. Performance is evaluated on ROC-AUC, with the top 3 models are selected for testing. The project concludes with a detailed summary of key takeaways and findings. 
+To begin: I perform a 70/30 (train/test) split, create a preprocessing recipe, and establish validation sets (10) to facilitate model selection and tuning. Models are trained in separate RDA files before being loaded back in for evaluation. Performance is evaluated on ROC-AUC, with the top 3 models selected for testing. The project concludes with a detailed summary of key takeaways and findings. 
 
 ## Methods used 
 * Data processing
