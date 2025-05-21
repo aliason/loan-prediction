@@ -1,5 +1,6 @@
 # Loan Prediction Machine Learning Project
 
+## Project Description
 This repository contains the code for the final course project of PSTAT 131 (Statistical Machine Learning) at UCSB. Students apply machine learning algorithms to solve a real-world problem of their choosing and use Markdown to compile a report of key findings.
 
 My project tackles a binary classification problem: predict loan eligibility based on applicant demographics. Tasked with automating loan approval for a fictional housing company, I take a structured and analytical approach, incrementally traversing the data science life cycle and leveraging multiple techniques to identify the best model for the problem. 
