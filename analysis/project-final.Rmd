@@ -66,6 +66,7 @@ knitr::include_graphics("images/image1.jpg")
 
 ## Data Sources 
 The project uses 2 files:
+
 * `train.csv`: 614 observations, 13 variables 
 * `test.csv`: 367 observations, 12 variables (excluding the target) 
 
@@ -952,7 +953,7 @@ autoplot(dt_tune_res)
 
 ## Model Selection
 
-Here, we will compare the performance of each model on the training data and visualize the results. To do this, I've created a tibble to display the estimated testing `roc_auc` scores for each fitted model. 
+Here, we will compare the performance of each model on the training data and visualize the results. To do this, I've created a tibble to display the estimated training `roc_auc` scores for each fitted model. 
 
 ```{r}
 set.seed(123)
@@ -1095,7 +1096,7 @@ Now we turn to our quadratic discriminant analysis (QDA) model. The QDA is an ex
 
 ### Testing the model
 
-The results indicate that QDA outperformed the KNN model with a computed `roc_auc` score of ~0.75. This is a significant increase in the context of our metric, suggesting non-linear relationships in our data. 
+The results indicate that QDA outperformed the KNN model with a computed `roc_auc` score ~0.76. This is a significant increase in the context of our metric, suggesting non-linear relationships in our data. 
 ```{r}
 set.seed(123)
 qda_roc_auc <- augment(qda_fit, new_data = loan_test, type = 'prob') %>%
@@ -1116,7 +1117,7 @@ augment(qda_fit, new_data = loan_test, type = 'prob') %>%
 ```
 
 
-## LDA
+## LDA Model
 Lastly, we explore the results of the LDA mode. First, let's compute its `roc_auc` score and then create visualization as needed. 
 
 ### Testing the model 
