@@ -39,8 +39,9 @@ The project concludes with a detailed summary of key takeaways and findings.
 Tools
 * R + libraries (ggplot2, tidyverse, corrplot, MASS, and more). 
 * R Markdown
-* Excel (codebook) 
-
-*Note*: GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
+* Excel (codebook)
+  
+## Notes
+GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
 * View the raw code [here](proj-final/project-final.Rmd)
 * View the full interactive report [here](https://aliason.github.io/loan-prediction) 
