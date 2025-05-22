@@ -15,6 +15,8 @@ The files consist of a training (`train.csv`) and test set (`test.csv`). The tes
 
 Note that `test.csv` will not be used in this project, as it only applies supervised learning models, which require the target variable to be known. A 70/30 split will be performed on `train.csv` for model evaluation.
 
+Data are pulled from (kaggle)[https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset] (originally sourced from an (Analytics Vidhya Hackathon)[https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement])
+
 ## Project Roadmap  
 The project will follow a structured approach, starting with data processing and cleaning, followed by exploration, analysis, and modeling. 
 
