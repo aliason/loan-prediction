@@ -5,17 +5,12 @@ This repository contains the code for the final course project of PSTAT 131 (Sta
 
 My project tackles a binary classification problem: predict loan eligibility based on applicant demographics. I take a structured and analytical approach, incrementally traversing the data science life cycle and leveraging multiple techniques to identify the best model for the problem. 
 
-**Note**: GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
-* View the raw code [here](proj-final/project-final.Rmd)
-* View the full interactive report [here](https://aliason.github.io/loan-prediction) 
-
+Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement))
 
 ## Data Sources
 The files consist of a training (`train.csv`) and test set (`test.csv`). The test set is identical to the training except for the loan status to be predicted. The training set consists of 614 observations on 13 variables; the test set consists of 367 observations on 12. 
 
 Note that `test.csv` will not be used in this project, as it only applies supervised learning models, which require the target variable to be known. A 70/30 split will be performed on `train.csv` for model evaluation.
-
-Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement))
 
 ## Project Roadmap  
 The project will follow a structured approach, starting with data processing and cleaning, followed by exploration, analysis, and modeling. 
@@ -45,3 +40,7 @@ Tools
 * R + libraries (ggplot2, tidyverse, corrplot, MASS, and more). 
 * R Markdown
 * Excel (codebook)
+
+**Note**: GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
+* View the raw code [here](proj-final/project-final.Rmd)
+* View the full interactive report [here](https://aliason.github.io/loan-prediction) 
