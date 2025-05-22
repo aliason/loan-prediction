@@ -1,0 +1,1159 @@
+---
+title: "Loan Prediction Machine Learning Project"
+subtitle: "PSTAT 131 Final Project" 
+
+author: "Alice Zhang"
+date: "2023-03-24"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    df_print: paged
+    theme: sandstone
+    highlight: tango
+    
+
+---
+
+```{r setup, include=FALSE}
+library(knitr)   # to help with the knitting process
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidymodels)  # for modeling functions 
+library(corrplot)
+library(ggplot2)   # for most of our visualizations
+library(ggthemes)
+library(corrr)
+library(dplyr)
+library(plyr)
+library(yardstick)  # metrics / metric set 
+library(gridExtra)
+library(naniar) # to assess missing data patterns
+library(pROC)  # analyze ROC curves 
+library(finalfit)
+library(MASS)    # to assist with the markdown processes
+library(dplyr)     # for basic r functions
+library(discrim)  # discriminant analysis
+library(klaR) # for naive Bayes
+library(naniar)  # visualize missing data 
+library(kableExtra)  
+library(themis) # for upsampling
+tidymodels_prefer()
+options(scipen=999)  # remove scientific notation
+```
+
+# Introduction
+
+This project tackles a binary classification problem: predict loan eligibility based on applicant demographics. I take a structured and analytical approach, incrementally traversing the data science life cycle and leveraging multiple techniques to identify the best model for the problem. 
+
+Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement). 
+
+## Problem Statement 
+Loans are a necessity of the modern world, supporting financial stability and economic growth. Many types of loans exist for different purposes, among which are home loans, which we will tackle in this problem. 
+
+Dream Housing Finance company deals in all home loans, with a presence across urban, semi-urban, and rural areas. The company seeks to automate their loan eligibility process using applicant data, such as gender, marital status, education, and income. 
+
+The goal of this project is to identify customer segments most likely to be approved, leveraging these insights to optimize targeting. A partial dataset has been provided to support the development of this model. 
+
+```{r echo=FALSE, out.width = "100%", fig.align = "center"}
+knitr::include_graphics("images/image1.jpg")
+```
+
+
+## Data Sources 
+The project uses 2 files:
+* `train.csv`: 614 observations, 13 variables 
+* `test.csv`: 367 observations, 12 variables (excluding the target) 
+
+Note that only `train.csv` will be used in this project. A 70/30 split is performed internally to support supervised learning and model evaluation. 
+
+## Project Roadmap 
+The project will follow a structured workflow, starting with data processing and cleaning, followed by exploration, analysis, and modeling. 
+
+First, I load the dataset into R, assess its structure, and perform initial data tidying to address errors and inconsistencies. Next, I conduct exploratory data analysis (EDA), extracting insights to guide further preprocessing. The dataset undergoes final tidying before modeling.
+
+To begin: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and establish validation sets (10) for resampling. Models are trained and tuned in `.rda` files before being loaded back in for evaluation. The top 3 models are selected for testing, and multiple visualizations are created for clarity.
+
+The project concludes with a detailed summary of key takeaways and findings. 
+
+
+# Data Processing 
+We begin by loading in the dataset and examining its structure to identify errors and inconsistencies. We perform initial tidying before exploring the dataset to inform further processing. 
+
+## Loading the data
+```{r, class.source = "fold-show", message=FALSE, warning=FALSE} 
+loan_ds <- read.csv("project_data/train.csv")
+str(loan_ds)
+```
+
+Note that: 
+
+  * `Loan_ID`, a unique identifier for each applicant (primary key), is not relevant to our analysis.
+  * `Credit_History`, a categorical variable, is encoded as binary
+  * `ApplicantIncome` and `CoapplicantIncome` are monthly figures given in dollar amounts, while `LoanAmount` is given in terms of thousands. We will scale these features to ensure data consistency. 
+  
+
+```{r}
+colSums(is.na(loan_ds))  
+```
+
+We observe missingness in the variables `LoanAmount`, `Loan_Amount_term`, and`Credit_History`.
+Note that `is.na()` works on quantitative data only and fails to detect blanks in categorical variables. Thus, we must use a different method to detect empty strings. 
+
+```{r}
+sapply(loan_ds,function(x) table(as.character(x) =="")["TRUE"])
+```
+The output reveals missingness is also present in `Gender`, `Married`, `Dependents`, and `Self-employed`. We will first encode these blanks into 'NA' for easy identification and determine how to handle them at a later step. 
+
+## Initial tidying
+
+Reload the dataset, reading blank entries as 'NA'. 
+```{r, class.source = "fold-show"}
+loan_ds <- read.csv(file="project_data/train.csv",
+                    header=TRUE,na.strings = c("", NA))   # read blanks as NA's 
+```
+
+
+**Feature engineering**: `ApplicantIncome` and `CoapplicantIncome` 
+
+- Scale features into thousands of dollars to match that of `LoanAmount`.  
+
+```{r, class.source = "fold-show"}
+loan_ds$ApplicantIncome <- (loan_ds$ApplicantIncome)/1000
+loan_ds$CoapplicantIncome <- (loan_ds$CoapplicantIncome)/1000
+```
+
+Redundancy
+
+- Remove `Loan_ID`, a unique identifier, since it is not relevant to our analysis. 
+```{r, class.source = "fold-show"}
+loan_ds <- loan_ds[,-1]; colnames(loan_ds)
+```
+
+
+## Data transformation 
+
+Encode categorical variables into factors. 
+
+```{r, class.source = "fold-show"}
+loan_ds$Gender <- factor(loan_ds$Gender, levels = c("Male","Female"))
+loan_ds$Education <- factor(loan_ds$Education, levels = c("Graduate","Not Graduate"))
+loan_ds$Self_Employed <- factor(loan_ds$Self_Employed, levels = c("Yes","No"))
+loan_ds$Property_Area <- factor(loan_ds$Property_Area, levels = c("Rural","Semiurban","Urban"))
+loan_ds$Loan_Status <- factor(loan_ds$Loan_Status, levels = c("Y","N"), labels = c("Yes","No")) 
+loan_ds$Credit_History <- factor(loan_ds$Credit_History, levels = c(1,0), labels = c("Yes","No"))  
+loan_ds$Dependents <- recode(loan_ds$Dependents,"3+"="3") %>%
+  as.factor()
+loan_ds$Married <- factor(loan_ds$Married)
+```
+
+
+
+## Missing values
+
+Now, we can detect the correct level of missingness in all variables: 
+```{r}
+colSums(is.na(loan_ds))   # validate results
+``` 
+
+```{r, class.source = "show"}
+vis_miss(loan_ds) # visualize missing data
+```
+
+The table below provides a numerical summary of missingness in our dataset, showing the # and percentage of missingness in each variable as well as a cumulative sum (running total). 
+```{r}
+missingness <- loan_ds %>%
+  miss_var_summary(add_cumsum = TRUE) %>%
+  dplyr::arrange(n_miss_cumsum) 
+
+missingness
+```
+
+```{r}
+sum(missingness$pct_miss)  # total % of missingness in dataset 
+```
+
+There are 149 total missing values in our dataset, representing ~24% of the data. The variables `Credit_History` and `Self_Employed` display the most missingness. 
+
+We have several options: 
+
+  * Remove all records with missing values 
+  * Remove all variables with large amount of missingness (a set %) 
+  * Impute missing values where appropriate 
+
+Methods 1 and 2 may result in incomplete data and are best avoided, especially with large amounts of missingness like our dataset. The best route is typically imputation, with a variety of methods to choose from.
+
+However, at this stage in our analysis, neither of these options is appropriate since we have not yet identified which features will be significant predictors. Thus, we will leave the dataset as is and further explore the data before revisiting at a later step.
+
+Below is our final variable description, with the correct units and encoding. 
+
+## Variable description
+
+* `Loan_ID` : Unique Loan ID.
+* `Gender` : Male / Female. 
+* `Married` : Whether the applicant is married (Yes/No) 
+* `Dependents` : A factor indicating an applicant's number of dependents (0,1,2,3). 
+* `Education` : An applicant's education level (Graduate/Under Graduate)
+* `Self_Employed` : Whether the applicant is self-employed (Yes/No)
+* `ApplicantIncome` : An applicant's monthly income (in thousands of dollars). 
+* `CoapplicantIncome` : A coapplicant's monthly income (in thousands of dollars)
+* `LoanAmount` : The loan amount requested by an applicant (in thousands of dollars). 
+* `Loan_Amount_Term` : The term of the loan in months. 
+* `Credit_History` : Whether the applicant's credit history meet the bank's requirements (Yes/No)
+* `Property_Area` : An applicant's area of residence (Urban/Semi Urban/Rural). 
+* `Loan_Status` : Whether the loan was approved or not (Yes/No).
+
+
+
+# Exploratory Data Analysis
+
+This section focuses on EDA, applying statistical analysis and data visualization techniques to explore trends, relationships, and variability. Insights derived from this step will inform further pre-processing. 
+
+We start by examining the response and evaluating correlation structures before analyzing features one by one to explore potential relationships. 
+
+## Loan Status 
+First, we will look at the distribution of the `Loan_Status` by creating a barplot.
+```{r}
+loan_ds %>% 
+  ggplot(aes(x = Loan_Status)) +
+  geom_bar() + 
+  theme_grey()  # create barplot 
+```
+
+```{r}
+loan_ds %>%
+  select(Loan_Status) %>%
+  table() %>%
+  prop.table() 
+```
+
+Approximately 69% of applicants were approved while 31% were rejected. This imbalance in classes may hinder our model performance. We will likely need to  *upsample* or *downsample* the data at a later step. 
+
+
+## Correlation Analysis
+Examining dependency among features is a crucial step in our analysis, providing insight into relationships, interactions, and helps detect potential issues such as multicolinearity. 
+
+The `corrplot()` function generates a graphical display of a correlation matrix, where the main diagonal represents variances while the off-diagonal cells represent covariances. The color scale on the right-side of the plot indicates the strength and direction of relationships for each pair. Note that `corrplot()` only accepts numeric variables. 
+
+```{r, echo=FALSE, messages=FALSE, warnings=FALSE}
+loan_ds %>%
+  select(where(is.numeric)) %>%  # generate heatmap of numeric variables 
+  na.omit() %>%  
+  cor() %>%
+  corrplot()
+```
+
+The plot below illustrates the magnitude of correlation coefficients. 
+```{r}
+loan_ds %>%
+  select(where(is.numeric)) %>%
+  na.omit() %>%  
+  cor() %>%
+  corrplot(method="number")
+```
+
+We observe a moderate, positive correlation between `LoanAmount` and `ApplicantIncome` (0.57) with little correlation among the other numeric predictors. This is a good sign! We will keep these findings in mind as we explore the dataset. 
+
+## Feature Analysis
+The next few sections will focus on analyzing individual and paired features, applying descriptive, visualization, and inferential techniques to infer relationships and causality. 
+
+### Loan Amount
+
+The histogram below displays a right-skewed distribution, with most values falling between 0-400: a good proxy for the average loan amount requested by an applicant. We also observe a few high outliers pulling the mean up.
+
+The paired box plots stratifies `Loan_Amount` by `Loan_Status`, providing further insight into dispersion and variability. While there is minimal variation in the average loan amount for approved and rejected applicants, we observe greater variability among the rejected applicants.
+```{r}
+require(gridExtra)
+
+plot1 <- loan_ds %>%
+  na.omit(LoanAmount) %>%
+  ggplot(aes(x=LoanAmount)) + 
+  geom_histogram(bins=40) +
+  theme_grey()
+
+plot2 <- loan_ds %>%
+  na.omit(LoanAmount) %>%
+  ggplot(aes(Loan_Status, LoanAmount)) + 
+  geom_boxplot(na.rm=T) +
+  geom_jitter(alpha = 0.1) +
+  theme_grey()
+
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+We validate our observations with an ANOVA test below, which yields a p-value of 0.367, indicating an insignificance difference between means. 
+```{r}
+anova(aov(LoanAmount ~ Loan_Status, loan_ds))  # validate observations
+``` 
+
+Next, we examine the relationship between `LoanAmount` and `ApplicantIncome`. Recall that these variables are positively correlated ($r = 0.57$). Ascatter plot of `LoanAmount` by `ApplicantIncome` shows an approximately linear trend, indicating that applicants with higher income tend to request larger loans. When stratifying applicants based on `Loan_Status` (the second plot), we observe similar approval rates across different loan amounts. 
+
+```{r, echo=FALSE}
+plot1 <- loan_ds %>%
+  na.omit(LoanAmount) %>% 
+  ggplot(aes(y=LoanAmount, x=ApplicantIncome)) +
+  geom_point() 
+
+plot2 <- loan_ds %>%
+  na.omit(LoanAmount) %>% 
+  ggplot(aes(y=LoanAmount, x=ApplicantIncome, fill=Loan_Status,color=Loan_Status)) +
+  geom_point() +
+  theme_grey()
+
+# we should take a closer look at applicant income
+grid.arrange(plot1, plot2, ncol=2)
+```
+From these observations, it is difficult to discern whether `ApplicantIncome` is predictive of `Loan_Status`. This brings us to our next section. 
+
+### Applicant Income 
+
+Applicant monthly incomes range from 0.15 to 81 thousand dollars, with the majority of values falling between 5 and 7 thousand. 
+```{r}
+summary(loan_ds$ApplicantIncome)
+``` 
+
+The histogram below displays a right-skewed distribution: even with extreme outliers omitted (those exceeding 50 thousand), we observe an imbalance in the proportion of applicants within each income range. Average incomes among approved and rejected applicants are about the same. 
+```{r}
+plot1 <- loan_ds %>%
+  filter(ApplicantIncome < 50) %>%    # filter by < 50 thousand  
+  ggplot(aes(x=ApplicantIncome)) + 
+  geom_histogram(fill="bisque",color="white",alpha=0.7, bins=10) + 
+  geom_density() +
+  geom_rug() + 
+  labs(x = "applicant income") +
+  theme_minimal()
+
+plot2 <- loan_ds %>%
+  filter(ApplicantIncome < 50) %>%  
+  ggplot(aes(y=ApplicantIncome,x=Loan_Status, color=Loan_Status))+
+  geom_boxplot() +
+  theme_grey()
+
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+Upon inspecting the three high outliers (`ApplicantIncome` > 50), we find that: 
+
+  * 2 out of 3 applicants have 3 or more dependents, both of whom are self-employed. 
+  * 2 out of 3 applicants were approved for a loan; both reside in an urban area and have good credit history.
+  * 2 out of 3 applicants are Males. 
+  * All 3 applicants have a graduate degree and have no coapplicant. 
+
+```{r}
+loan_ds %>%
+  filter(ApplicantIncome > 50)
+```
+
+These observations suggest that neither `ApplicantIncome` or `LoanAmount` are very predictive of `Loan_Status` in the most extreme cases, seeing that the most affluent applicant requesting the smallest amount (last record) was rejected. 
+From the trends observed above, we'd expect to see the opposite outcome: applicants with higher income and lower loan amount are more likely to be approved. 
+They also suggest that `Property_Area` and `Credit_History` may be relevant factors independent of `ApplicantIncome`, seeing as the only rejected applicant resided in a rural area and had bad credit history. It's difficult to discern whether `Education` or `Dependents` affect loan status. W will examine these factors in the next sections. 
+
+Now, let's take a closer look at approval rates across different income strata. The table below bins applicants into income brackets defined in 5,000 increments, inclusive at the right end. We observe that applicants in the 4th bracket (15,000 to 20,000) have the highest approval rate, around 77%. This suggests that higher income somewhat correlates with a higher approval rate. However, it's important to note that the number of data points in each bin varies, which may potentially inflate or deflate the approval rates.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+loan_ds %>%
+  filter(ApplicantIncome < 50) %>%  
+  dplyr::mutate(bin = cut(ApplicantIncome, breaks=c(0, 5, 10, 15, 20, 25))) %>%
+  group_by(bin, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+### Coapplicant Income
+
+We now turn to examine coapplicant incomes. Recall that a coapplicant income of 0 indicates no coapplicant.
+
+A density plot grouped by `Loan_Status` indicates that coapplicant incomes are right skewed, with a mix of high and low values in each status category. Average coapplicant incomes for approved applicants are slightly higher than that of rejected applicants.
+
+```{r, echo=FALSE}
+loan_ds %>%
+  filter(CoapplicantIncome < 30) %>%  # omit high outliers
+  ggplot(aes(x=CoapplicantIncome)) + 
+  geom_histogram(fill="bisque",color="white",alpha=0.7, bins=20) + 
+  geom_density() +
+  geom_rug() + 
+  labs(x = "Coapplicant Income") + 
+  facet_wrap(~Loan_Status)  +   
+  theme_minimal() 
+```
+
+Trends are difficult to discern due to 0 `CoapplicantIncome` values (no applicant) skewing down the mean across both categories. The box plots below omits those values, providing better insight into its central tendency. Omitting high outliers (those > 30) would likely help too.
+
+We observe that, of those with a coapplicant, approval rates are approximately equal. 
+```{r}
+loan_ds %>%
+  filter((CoapplicantIncome != 0) & (CoapplicantIncome < 30)) %>% 
+  ggplot(aes(x=Loan_Status, y=CoapplicantIncome, color=Loan_Status)) + 
+  geom_boxplot()
+```
+
+What is more important? The presence of a coapplicant, or their income amount? We explore this question in the next section, first starting with a contingency table. 
+
+The table below shows that 273 out of 614 (about 44%) applicants do not have a coapplicant: a relatively large count. 
+
+```{r, message=FALSE, warning=FALSE}
+loan_ds %>%
+  dplyr :: count(CoapplicantIncome == 0) 
+```
+
+Now we stratify on an auxiliary variable `has_coapp`, with values FALSE if `CoapplicantIncome` is 0, and TRUE otherwise. The contingency table below indicates that applicants with coapplicants are more likely to be approved (71% vs 65%). 
+```{r, message=FALSE, warning=FALSE} 
+loan_ds %>%
+  dplyr:: mutate(has_coapp = if_else(CoapplicantIncome != 0,TRUE,FALSE)) %>%
+  group_by(has_coapp, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+# on average, ~72% of applicants w/ a coapplicant were approved for a loan
+# while only ~65% of applicants w/o a coapplicant were approved.
+```
+
+These observations indicates that the presence of a coapplicant may be more predictive of `Loan_Status` than the absolute value of their income. We should consider transforming `CoapplicantIncome` into a factor.
+
+
+### Loan Amount Term
+
+`Loan_Amount_Term` provides the term of the loan in months. We observe a left skewed distribution, indicating that its mean (approximately 342 months) falls below than its median and mode. In these cases, the mode is more representative of its center.
+```{r}
+loan_ds %>%
+  na.omit(Loan_Amount_Term) %>%
+  ggplot(aes(x=Loan_Amount_Term)) + 
+  geom_bar() +
+  theme_grey() # mfv 360 
+```
+
+
+We now look at `Loan_Amount_Term` in relation to `Loan_Status`. The plot below suggests that applicants requesting short-term loans are more likely to be approved, on average, than those requesting long-term loans. We do, however, observe a high approval rate for 360.
+
+We should keep in mind that the data is very imbalanced, with ~85% of loans having a term of 360, likely under representing applicants with alternative loan terms.
+```{r}
+loan_ds %>%
+  na.omit(Loan_Amount_Term) %>%  
+  ggplot(aes(x=Loan_Amount_Term, fill=Loan_Status)) + 
+  geom_bar(position="fill")
+```
+
+
+
+### Dependents
+
+Dependents is right skewed; most applicants have no dependents. Approval rates are similar across each category, with the highest approval rate for applicants with 2 dependents. There is no clear pattern, indicating that `Dependents` may not be very correlated with `Loan_Status`.
+```{r}
+plot1<-loan_ds %>%
+  na.omit(Dependents) %>%  # should be able to impute this later
+  ggplot(aes(x=Dependents)) +
+  geom_bar()  # most applicants have no dependents
+
+# dependents vs. loan status
+plot2<-loan_ds %>%
+  na.omit(Dependents) %>%  
+  ggplot(aes(x=Dependents, fill=Loan_Status)) + 
+  geom_bar(position="fill")
+# relatively similar likelihood of approval for each # of dependents
+
+grid.arrange(plot1,plot2,ncol=2)
+```
+
+A natural question is whether applicants with dependents (indicative of a larger household) request a larger loan (`LoanAmount`). 
+
+The boxplots below indeed suggest that individuals **with** dependents do, on average, request a larger loan amount; however, the actual number of dependents do not seem very significant. 
+```{r, echo=FALSE}
+loan_ds %>%
+  na.omit(Dependents,LoanAmount) %>%  
+  ggplot(aes(x=LoanAmount, y=Dependents, group=Dependents, fill=Dependents)) + 
+  geom_boxplot()
+```
+
+
+
+
+### Gender
+
+There are more male applicants than female applicants (81% vs 19%), indicating an imbalance.
+
+```{r, message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Gender))  # more males than females 
+```
+
+A natural question to ask is whether there is bias in the selection process. From the plot below, we can see that females are indeed less likely (about 8% lower) to be approved for a loan than males. A 2-way contingency table also supports our hypothesis. 
+ 
+```{r}
+loan_ds %>%
+  na.omit(Gender) %>%  # should be able to impute this later
+  ggplot(aes(x=Gender, fill=Loan_Status)) + 
+  geom_bar(position="fill")
+```
+```{r}
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Gender) %>%
+  group_by(Gender, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+### Married
+
+Married applicants comprise a majority of our dataset (~60%), which is surprising since most applicants have no dependents. Nonetheless, a 60-40 ratio provides a good contrast from the previous imbalances. Those who are married are 10% more likely to be approved for a loan: a pretty significant difference given the size of our dataset. 
+
+```{r, message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Married))
+```
+
+```{R}
+loan_ds %>%
+  na.omit(Married) %>%
+  ggplot(aes(x=Married,fill=Loan_Status)) +
+  geom_bar(position="fill")
+```
+
+```{r} 
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Married) %>%
+  group_by(Married, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+### Education
+`Education` is a factor representing an applicant's educational level with levels "Graduate" or "Not Graduate". Graduates comprise about 80% of our dataset, which makes sense given the weight of educational loans. An 80-20 ratio, however, is definitely unbalanced. From the barplots, we can see that graduates are more likely to get approved (8% more). 
+```{r, message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Education))
+```
+
+```{r}
+loan_ds %>%
+  na.omit(Education) %>%
+  ggplot(aes(x=Education,fill=Loan_Status)) +
+  geom_bar(position="fill")
+```
+
+```{r}
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Education) %>%
+  group_by(Education, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+### Self employed
+`Self_Employed` is a factor indicating if an applicant is self-employed. Only 14% of applicants in the dataset are self-employed. There is no significant difference in the approval rates between self-employed and non self-employed individuals (~ 4%), with non self-employed individuals having the higher rate.
+```{r,message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Self_Employed))
+```
+
+```{r}
+loan_ds %>%
+  na.omit(Self_Employed) %>%
+  ggplot(aes(x=Self_Employed,fill=Loan_Status)) +
+  geom_bar(position="fill")
+```
+
+```{r}
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Self_Employed) %>%
+  group_by(Self_Employed, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+### Credit History
+
+`Credit_History` is a factor indicating whether an applicant's credit meets the bank's requirements. Most applicants have good credit history (~85%).
+
+```{r, message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Credit_History))
+```
+
+```{r}
+loan_ds %>%
+  na.omit(Credit_History) %>%
+  ggplot(aes(x=Credit_History,fill=Loan_Status)) +
+  geom_bar(position="fill")
+```
+
+Credit history appears to be a key determinant of loan eligibility, with nearly 80% of applicants with good credit history being approved (vs. 10% of those with poor credit). However, potential selection bias should be considered, as individuals with good credit may be more likely to apply in the first place.
+```{r}
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Credit_History) %>%
+  group_by(Credit_History, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+
+
+
+
+### Property Area
+`Property_Area` is a factor representing the area in which an applicant resides: Urban, Semi Urban, or Rural. We have a  good mix of applicants from all 3 areas, with thosing residing in semi urban areas having the highest approval rate. 
+```{r, message=FALSE, warning=FALSE}
+prop.table(table(loan_ds$Property_Area))
+```
+
+```{r}
+loan_ds %>%
+  na.omit(Property_Area) %>%
+  ggplot(aes(x=Property_Area,fill=Loan_Status)) +
+  geom_bar(position="fill")
+```
+```{r}
+# 2-way contingency table 
+loan_ds %>%
+  na.omit(Property_Area) %>%
+  group_by(Property_Area, Loan_Status) %>% 
+  dplyr:: summarise(n=n()) %>%
+  dplyr::mutate(freq = prop.table(n))  
+```
+We also observe that married individuals tend to prefer semi urban areas over others. This is a pretty insightful finding because, as we recall, married individuals had a 10% higher approval rate than non-married individuals. Coupled with a higher approval rate for those with coapplicants, we may just find our target demographic!
+```{r}
+# is property area related to any other predictors?
+loan_ds %>%
+  na.omit(Property_Area, Loan_Status, Married) %>%
+  dplyr:: mutate(has_coapp = if_else(CoapplicantIncome != 0,TRUE,FALSE)) %>%
+  ggplot(aes(x=Property_Area,fill=Married)) +
+  geom_bar(position="dodge") +
+  facet_wrap(~has_coapp)
+```
+
+
+
+
+## Final tidying
+
+Now that we've explored the dataset, we will need to fix some errors before continuing with our analysis. Let's review these issues:
+  
+  * Missingness observed in 7 variables; 
+  * Extreme high outliers observed in `ApplicantIncome` and `LoanAmount`. 
+
+
+### MICE 
+Missingness exists in both numerical and categorical variables. Therefore, we will be using the `mice` package, which imputes missing values with plausible data values inferred from other variables in the dataset. 
+
+```{r, class.source = "fold-show", message=FALSE, warning=FALSE}
+# install and load 
+# install.packages("mice")
+library(mice)
+```
+
+From the table below, we see that the first two variables are missing a large proportion of its values, while the last five are missing none. 
+```{r, message=FALSE, warning=FALSE}
+loan_ds %>%
+  miss_var_summary()
+```
+
+
+Now, we import the `mice` package. The argument `m` indicates the number of multiple imputations (default 5). The `method` argument specifies the imputation method applied to all variables in the dataset. A separate method can also be specified for each variable. 
+
+We can control the `defaultMethod` used for different types of data. I will choose predictive mean matching for numeric data, logistic regression for 2-level (binary) factors, LDA for unordered factor data, and proportional odds for ordered factor data.
+
+
+```{r, class.source = "fold-show", message=FALSE, warning=FALSE, results=FALSE}
+library(mice)
+imp <- mice(loan_ds, m=5, defautMethod = c("pmm","logreg", "lda", "polr"))
+```
+
+
+Here, we can see the actual imputations for `Dependents`: 
+```{r, class.source = "fold-show",} 
+imp$imp$Dependents
+```
+
+
+Now let's merge the imputed data into our original dataset via the `complete()` function.
+```{r, class.source = "fold-show"} 
+loan_ds <- complete(imp,5)    # I chose the 5th round of data imputation
+```
+
+Applying `mix_var_summary` again, we can see that there are no missing data after the imputation:
+
+```{r, class.source = "fold-show", message=FALSE, warning=FALSE}
+loan_ds %>%
+  miss_var_summary()   # validate results 
+```
+
+
+### Outliers
+
+Outliers can be tricky to interpret, as they may result from data entry errors, sampling issues, or natural variability within the dataset. Removing them risks potential information loss. For now, we will assume that missing values are systematic unless proven otherwise.
+
+Looking at `LoanAmount`, we see that the "extreme" values are somewhat plausible. Some customers may want to apply for a loan as high as 650 thousand.
+
+```{r, message=FALSE, warning=FALSE}
+zscore <- (abs(loan_ds$LoanAmount-mean(loan_ds$LoanAmount, na.rm=T))/sd(loan_ds$LoanAmount, na.rm=T))
+loan_ds$LoanAmount[which(zscore > 3)]
+```
+
+Since we have a positive skew, we will perform a log transformation to normalize the data. Now the data looks closer to normal and the effect of extreme outliers are significantly smaller.
+```{r,class.source = "fold-show"} 
+loan_ds$LogLoanAmount <- log(loan_ds$LoanAmount)
+```
+
+```{r}
+plot1 <- loan_ds %>% 
+  ggplot(aes(x=LoanAmount)) +
+  geom_histogram(bins=20) +
+  geom_density()+
+  labs(title="Histogram for Loan Amount") +
+  xlab("Loan Amount") 
+
+plot2 <- loan_ds %>% 
+  ggplot(aes(x=LogLoanAmount)) +
+  geom_histogram(bins=20) +
+  geom_density()+
+  labs(title="Histogram for Log Loan Amount") +
+  xlab("Log Loan Amount") 
+
+grid.arrange(plot1,plot2,ncol=2)
+```
+
+
+We also have a pretty severe positive skew for `ApplicantIncome`, so we will perform a log transformation as well. The data looks much better. 
+```{r,class.source = "fold-show"} 
+loan_ds$LogApplicantIncome <- log(loan_ds$ApplicantIncome)
+```
+
+```{r}
+plot1 <- loan_ds %>% 
+  ggplot(aes(x=ApplicantIncome)) +
+  geom_histogram(bins=20) +
+  geom_density()+
+  labs(title="Histogram for Applicant Income") +
+  xlab("Applicant Income") 
+
+plot2 <- loan_ds %>% 
+  ggplot(aes(x=LogApplicantIncome)) +
+  geom_histogram(bins=20) +
+  geom_density()+
+  labs(title="Histogram for Log Applicant Income") +
+  xlab("Log Applicant Income") 
+
+grid.arrange(plot1,plot2,ncol=2)
+```
+
+
+Now, we will remove the original variables from our dataset
+```{r,class.source = "fold-show"} 
+loan_ds <- select(loan_ds,-LoanAmount)  # remove original variable
+loan_ds <- select(loan_ds,-ApplicantIncome)  # remove original variable 
+```
+
+
+
+# Model Setup  
+
+Now that we have a better understanding of our dataset, it's time to set up our models. We will perform a train vs. test split, create a preprcoessing recipe, then establish 10-fold cross-validation for model selection and tuning.  
+
+
+## Train/test Split
+
+Here, we split the dataset into training and test sets using a 70/30 split, ensuring enough data for evaluation while maintaining a robust training set. To ensure replicability, we set a random seed and stratify on the response variable. Models will be trained and evaluated on the training set, then validated on previously unseen test data.
+
+```{r,class.source = "fold-show"} 
+set.seed(123)
+
+loan_split <- initial_split(loan_ds, prop = 0.70, strata = "Loan_Status")
+loan_train <- training(loan_split)
+loan_test <- testing(loan_split)
+loan_folds <- vfold_cv(loan_train, v = 10, strata = "Loan_Status")
+```
+
+Dimensions of our datasets:
+```{r,class.source = "fold-show"} 
+dim(loan_train); dim(loan_test)
+```
+
+
+
+## Building the recipe
+
+Now that preliminary steps are done, it's time to build our recipe. Think of it as baking cut-out cookies: while we’ll be using different molds (models), the base ingredients remain the same. 
+
+That's what this recipe is; a unique mix of ingredients that will be fitted to different molds, with the goal of identifying the best 'mold' for our particular mix. From there, fitting the models to the test set is analogous to using a new batch of ingredients, shaping it with our chosen mold, and baking it to perfection! 
+
+In our recipe, we'll be using 8 out of the 11 original predictors, 2 transformed variables (`LogLoanAmount`, `LogApplicantIncome`), plus a new variable `Coapplicant` indicating the precense or absence of a coapplicant. 
+
+
+Recall that our response is severely imbalanced, which can bias our models towards the majority class. To address this, we will upsample the minority class using `step_upsample()` to ensure equal representation (`over_ratio = 1`). Upsampling is applied only to training data (`skip = TRUE`), though we initially set `skip = FALSE` to verify balance.
+
+Since the values of `CoapplicantIncome` do not appear to affect our response, we will transform it into a categorical variable. We'll then scale and center our numeric predictors, and dummy-code the nominal predictors. 
+
+```{r,class.source = "fold-show"} 
+set.seed(123)
+
+loan_recipe <- recipe(Loan_Status~., data=loan_train) %>%
+  step_upsample(Loan_Status, over_ratio = 1, skip = FALSE) %>% 
+  step_mutate(Coapplicant = factor(if_else(CoapplicantIncome!=0, "Yes","No",NA))) %>%
+  step_rm(CoapplicantIncome)  %>% 
+    # transform coapplicant income into a factor
+    # Yes if CoapplicantIncome is not 0, No otherwise. 
+  step_scale(all_numeric_predictors()) %>%
+  step_center(all_numeric_predictors()) %>%  # scale and center
+  step_dummy(all_nominal_predictors())    # convert into factor 
+```
+
+```{r,class.source = "fold-show"} 
+set.seed(123)
+prep(loan_recipe) %>% bake(new_data = loan_train) %>% 
+  group_by(Loan_Status) %>% 
+  dplyr :: summarise(count = n())     # validate results 
+``` 
+
+Now we rewrite the recipe with `skip=TRUE`:
+```{r,class.source = "fold-show"} 
+set.seed(123)
+
+loan_recipe <- recipe(Loan_Status~., data=loan_train) %>%
+  step_upsample(Loan_Status, over_ratio = 1, skip = TRUE) %>% 
+  step_mutate(Coapplicant = factor(if_else(CoapplicantIncome!=0, "Yes","No",NA))) %>%
+  step_rm(CoapplicantIncome)  %>% 
+    # transform coapplicant income into a factor
+    # Yes if CoapplicantIncome is not 0, No otherwise. 
+  step_scale(all_numeric_predictors()) %>%
+  step_center(all_numeric_predictors()) %>%  # scale and center
+  step_dummy(all_nominal_predictors())    # convert into factor 
+```
+
+
+We can use `prep()` to check the recipe to verify it worked. 
+
+```{r,class.source = "fold-show"} 
+set.seed(123)
+prep(loan_recipe) %>% 
+  bake(new_data = loan_train) %>% 
+  kable() %>% 
+  kable_styling(full_width = F) %>% 
+  scroll_box(width = "100%", height = "200px")
+```
+
+By dummy-coding our nominal predictors, we increase the number of dataset columns. Each categorical variable is converted into h–1 dummy variables, with one level excluded as the reference (baseline) category.
+
+The baseline level is not explicitly shown and assigned a value of 0. If all dummy variables for a given predictor are 0, then the observation belongs to the baseline category. For example, if both `Property_Area_Urban` and `Property_Area_Semiurban` are 0, the applicant must be from a Rural area. 
+
+## K-fold CV 
+
+We will stratify on our response variable `Loan_Status` and perform stratified 10-fold CV. This method splits the data into 10 roughly equal folds, maintaining class balance in each fold. The model is trained on 9 folds and validated on the remaining one. This process repeats 10 times, with each fold used once as the validation set. The result is 10 estimates of test error, providing a more reliable measure of model performance. 
+
+```{r,class.source = "fold-show"} 
+set.seed(123)
+loan_folds <- vfold_cv(loan_train, v = 10, strata = Loan_Status)
+```
+
+To save computational time, we will save the results to an `.rda` file. Once we've built the models (also saved in separate `rda` files), we can load them back in with no time commitment. 
+
+```{r,class.source = "fold-show"} 
+save(loan_ds, loan_folds, loan_recipe, loan_train, loan_test, 
+     file = "rda_files/loan-setup.rda")
+```
+
+
+
+# Model Building
+
+It’s time to build our models! To improve efficiency and access, each model will be built in a separate `R` file and saved as an `.rda` file. This approach streamlines analysis and reduces computational overhead.
+
+For each model, we will: 
+
+  1. Define the model type, engine, and mode.
+  2. Set up the workflow by combining the model with the pre-processing recipe.
+  
+For models requiring parameter tuning, we will also:
+  
+  3. Create tuning grids using `grid_regular` for the hyperparameters.
+  4. Fit the models to our folded data via `tune_grid()`.
+  5. Select the best hyperparameter(s) based on `roc_auc` and finalize the workflow. 
+  
+Finally: 
+  6. Train the best model on the full training set. 
+  7. Save the results to `.rda` files and import them back in for further evaluation. 
+
+
+## Error metric 
+
+The ROC curve plots the true positive rate (TPR) against the false positive rate (FPR) at various thresholds. TPR, or sensitivity, is the proportion of correctly classified observations, while FPR (1-specificity), is the proportion of incorrectly classified observations. The higher the TPR, the better. The AUC (area under the curve) reflects a model’s diagnostic ability, showing the trade-off between sensitivity and specificity.
+
+```{r echo=FALSE, out.width = "100%", fig.align = "center"}
+knitr::include_graphics("images/image2.jpg")
+```
+
+
+
+
+
+# Model Evaluation  
+
+It's time to load our models back in to evaluate their results! 
+
+```{r, class.source="show"}
+load(file= "rda_files/logistic.rda")   # relative path, don't need to start with '/' 
+load(file= "rda_files/knn.rda")
+load(file= "rda_files/en.rda")
+load(file= "rda_files/lda.rda")
+load(file= "rda_files/qda.rda")
+load(file= "rda_files/decision-tree.rda")
+```
+
+
+## Model Autoplots 
+
+Here, we will visualize the results of our tuned models. We will use the `autoplot` function to visualize the effect of varying select parameters on the performance of each model according to its impact on our metric of choice. 
+
+
+### K-Nearest Neighbors 
+
+For the KNN model, we evaluated 10 different values of `neighbors`. The plot shows that increasing k improved `roc_auc`, with the best performing model (k=10) having an `roc_auc` score of ~0.7.  
+```{r, class.source="show"}
+autoplot(knn_tune_res)
+```
+
+
+### Elastic Net
+In our elastic net model, we tuned 2 parameters with 10 levels each: 
+
+* `penalty`: the strength of regularization
+* `mixture`: the proportion of lasso penalty (1 for pure lasso, 0 for pure ridge). 
+
+The results show that the optimal mixture was 0, indicating pure ridge performed best. Lower mixture levels corresponded to higher `roc_auc` scores, while increasing `penalty` reduced performance.
+
+```{r, class.source="show", warning=FALSE, message=FALSE}
+autoplot(en_tune_res)
+```
+
+### Decision Tree
+
+For our decision tree model, we tuned `cost_complexity` across 10 levels. This parameter controls the trade-off between complexity and overfitting. 
+A simpler tree (with fewer splits) are easier to interpret but may introduce higher bias, while complex trees can fit the training data better but risk overfitting.
+
+The idea of pruning is similar to that of regularization: we first grow a large tree, then prune it by selecting the sub-tree that minimizes a penalized error metric. The `cost_complexity` parameter balances model complexity with fit to the data. A value of 0 corresponds to the training error rate, and increasing it penalizes the tree for having too many nodes. 
+
+From the plot below, we observe that a `cost_complexity` of ~0.1 yields the optimal model (highest `roc_auc`). This indicates that pruning improved the model. Note that the parameter uses the `log10_trans()` functions by default, so all values in our grid are in the log10 scale. 
+
+```{r, class.source="show"}
+autoplot(dt_tune_res)
+```
+
+
+
+## Model Selection
+
+Here, we will compare the performance of each model on the training data and visualize the results. To do this, I've created a tibble to display the estimated testing `roc_auc` scores for each fitted model. 
+
+```{r}
+set.seed(123)
+
+log_auc <- augment(log_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+lda_auc <- augment(lda_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+qda_auc <- augment(qda_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+knn_auc <- augment(knn_final_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+en_auc <- augment(en_final_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+dt_auc <- augment(dt_final_fit, new_data = loan_train) %>%
+  roc_auc(truth = Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+roc_aucs <- c(log_auc$.estimate,
+                           lda_auc$.estimate,
+                           qda_auc$.estimate,
+                           knn_auc$.estimate,
+                           en_auc$.estimate,
+                           dt_auc$.estimate)
+
+mod_names <- c("Logistic Regression",
+            "LDA",
+            "QDA",
+            "KNN",
+            "Elastic Net",
+            "Decision Tree")
+```
+
+
+```{r}
+mod_results <- tibble(Model = mod_names,
+                             ROC_AUC = roc_aucs)
+
+mod_results <- mod_results %>% 
+  dplyr::arrange(-roc_aucs)
+
+mod_results
+```
+
+The results show that all of our models performed relatively well, with KNN leading at ~0.9 `roc_auc`, followed QDA at ~0.8 `roc_auc`. I've created a lollipop plot below to visualize these results. 
+
+```{r}
+lp_plot <- ggplot(mod_results, aes(x = Model, y = ROC_AUC)) + 
+    geom_segment( aes(x = Model, xend = 0, y = ROC_AUC, yend = 0)) +
+  geom_point( size=7, color= "black", fill = alpha("blue", 0.3), alpha=0.7, shape=21, stroke=3) +
+  labs(title = "Model Results") + 
+  theme_minimal()
+
+lp_plot
+```
+
+
+
+# Model Validation 
+
+Now that we have identified the top 3 models, we proceed to evaluate their true performance on the test set. We start with the KNN model and then compare it with the other 2 to assess their relative performance. 
+
+
+## KNN Model 
+
+### Performance on the folds
+
+The KNN model performed best overall, but which of value of `neighbors` yields the best performance?
+
+The results from fitting on the training folds indicate that the KNN model with 10 neighbors and 11 predictors performed the best, achieving a mean `roc_auc` score of ~0.68. Now that we have our best model, we can fit it to our testing data to evaluate its true predictive powe
+
+```{r, class.source = "show"}
+# select metrics of best knn model
+knn_tune_res %>% 
+  collect_metrics() %>% 
+  dplyr::arrange(mean) %>% 
+  slice(10)
+```
+
+### Testing the model
+
+Despite performing well on the training set, the KNN model struggled on our test data. Typically, an AUC value between 0.7 and 0.8 is ideal, but our model falls short. 
+
+```{r}
+set.seed(123)
+knn10_roc_auc <- augment(knn_final_fit, new_data = loan_test) %>%
+  roc_auc(Loan_Status, .pred_Yes)  %>%
+  select(.estimate)
+
+knn10_roc_auc 
+```
+
+
+
+### ROC curve 
+
+Below is a confusion matrix of the test results as well as an ROC-AUC plot. 
+```{r}
+set.seed(123)
+knn_test_results <- augment(knn_final_fit, new_data = loan_test)
+
+knn_test_results %>% 
+  conf_mat(truth = Loan_Status, estimate = .pred_class) %>% 
+  autoplot(type = "heatmap")
+```
+
+In general, the more an ROC curve resembles the top left angle of a square, the better the AUC. While our curve is not perfect, it has the correct shape and looks pretty decent.
+
+```{r, warning=FALSE}
+knn_test_results %>% 
+  roc_curve(Loan_Status, .pred_Yes) %>%
+  autoplot()
+```
+
+
+Here's a distribution of the predicted probabilities. 
+```{r, message=FALSE}
+knn_test_results %>% 
+  ggplot(aes(x = .pred_Yes, fill = Loan_Status)) + 
+  geom_histogram(position = "dodge") + theme_bw() +
+  xlab("Probability of Yes") +
+  scale_fill_manual(values = c("blue", "orange"))
+```
+
+
+
+## QDA Model 
+Now we turn to our quadratic discriminant analysis (QDA) model. The QDA is an extension of LDA that allows for non-linear decision boundaries by assuming each class follows its own Gaussian distribution. This flexibility lets QDA capture more complex patterns between classes.
+
+
+### Testing the model
+
+The results indicate that QDA outperformed the KNN model with a computed `roc_auc` score of ~0.75. This is a significant increase in the context of our metric, suggesting non-linear relationships in our data. 
+```{r}
+set.seed(123)
+qda_roc_auc <- augment(qda_fit, new_data = loan_test, type = 'prob') %>%
+  roc_auc(Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+qda_roc_auc
+```
+
+### ROC curve
+
+Instead of fluctuating between concavity and convexity as in the case of KNN, the ROC curve is consistently concave. 
+
+```{r}
+augment(qda_fit, new_data = loan_test, type = 'prob') %>%
+  roc_curve(Loan_Status, .pred_Yes) %>%
+  autoplot()
+```
+
+
+## LDA
+Lastly, we explore the results of the LDA mode. First, let's compute its `roc_auc` score and then create visualization as needed. 
+
+### Testing the model 
+To my surprise, the LDA model performed better than both QDA and KNN with an `roc_auc` score of ~0.8. 
+
+```{r}
+lda_roc_auc <- augment(lda_fit, new_data = loan_test, type = 'prob') %>%
+  roc_auc(Loan_Status, .pred_Yes) %>%
+  select(.estimate)
+
+lda_roc_auc
+```
+
+### ROC curve
+Its ROC curve looks much better than that of the KNN model. From ~ 0.5 specificity onward, sensitivity sits near 1.0: definitely a good sign.
+```{r}
+augment(lda_fit, new_data = loan_test, type = 'prob') %>%
+  roc_curve(Loan_Status, .pred_Yes) %>%
+  autoplot()
+```
+
+
+# Conclusion
+This project aimed to predict loan eligibility using selected applicant demographics from a modest dataset with multiple features. I followed a structured workflow: data cleaning, exploratory analysis, and tested 6 models with varying complexity and flexibility. The LDA model performed best, though all models showed moderate accuracy (~0.7-0.8 ROC-AUC) with room for improvement.
+
+Key challenges included assumption violations, overfitting, and dimensionality reduction. Linear models struggle to capture complex relationships, while non-parametric models tend to overfit. 
+
+The better test performance of discriminant models (LDA and QDA) suggest that the data likely includes a mix of linear and non-linear patterns, with LDA surprisingly capturing linear boundaries more effectively than expected.
+
+Further refinements could involve exploring more flexible, non-linear models such as random forests or gradient boosting to better capture complex decision boundaries. 
+
+Limitations include possible confounds and missing features such as age or race, which could improve accuracy and reveal biases. Loan eligibility decisions based on limited demographics risk unfairness; a case-by-case basis is preferable. 
+
+
+```{r echo=FALSE, out.width = "100%", fig.align = "center"}
+knitr::include_graphics("images/img03.gif")
+```
+
+
+
