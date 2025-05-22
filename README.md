@@ -45,7 +45,7 @@ Tools
 
 ## Notes 
 GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
-* View the raw code [here](proj-final/project-final.Rmd)
+* View the raw code [here](analysis/project-final.Rmd)
 * View the full interactive report [here](https://aliason.github.io/loan-prediction) 
 
 *Revamped in May 2025 :) (original project 03-2023)*
