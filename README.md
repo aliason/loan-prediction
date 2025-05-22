@@ -8,22 +8,24 @@ My project tackles a binary classification problem: predict loan eligibility bas
 Data are pulled from [Kaggle](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset) (originally sourced from an [Analytics Vidhya Hackathon](https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement))
 
 ## Data Sources
-The files consist of a training (`train.csv`) and test set (`test.csv`). The test set is identical to the training except for the loan status to be predicted. The training set consists of 614 observations on 13 variables; the test set consists of 367 observations on 12. 
+The project uses 2 files:
+* `train.csv`: 614 observations, 13 variables 
+* `test.csv`: 367 observations, 12 variables (excluding the target) 
 
-Note that `test.csv` will not be used in this project, as it only applies supervised learning models, which require the target variable to be known. A 70/30 split will be performed on `train.csv` for model evaluation.
+Note that only `train.csv` will be used in this project. A 70/30 split is performed internally to support supervised learning and model evaluation. 
 
 ## Project Roadmap  
-The project will follow a structured approach, starting with data processing and cleaning, followed by exploration, analysis, and modeling. 
+The project will follow a structured workflow, starting with data processing and cleaning, followed by exploration, analysis, and modeling. 
 
 First, I load the dataset into R, assess its structure, and perform initial data tidying to address errors and inconsistencies. Next, I conduct exploratory data analysis (EDA), extracting insights to guide further preprocessing. The dataset undergoes final tidying before modeling.
 
-To begin: I perform a 70/30 (train/test) split, build a preprocessing recipe, and establish validation sets (10) for model selection and tuning. Models are trained in separate RDA files before being loaded back in for evaluation. The top 3 models are selected for testing, and multiple visualizations are created for clarity.
+To begin: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and establish validation sets (10) for resampling. Models are trained and tuned in `.rda` files before being loaded back in for evaluation. The top 3 models are selected for testing, and multiple visualizations are created for clarity.
 
 The project concludes with a detailed summary of key takeaways and findings. 
 
 ## Methods used 
 * Data processing
-    * Missing values (imputation via MICE)
+    * Missing data (imputation via MICE)
     * Duplicates
     * Feature transformation (scaling, binning, categorical encoding)
 * EDA 
@@ -37,11 +39,14 @@ The project concludes with a detailed summary of key takeaways and findings.
     * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
 
 Tools
-* R + libraries (ggplot2, tidyverse, corrplot, MASS, and more). 
-* R Markdown
-* Excel (codebook)
+* R + libraries (`ggplot2`, `tidyverse`, `corrplot`, `MASS`, and more). 
+* R markdown
+* Excel ([codebook](codebook.xlsx) with variable definitions)
 
----
-**Note**: GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
+## Notes 
+GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
 * View the raw code [here](proj-final/project-final.Rmd)
 * View the full interactive report [here](https://aliason.github.io/loan-prediction) 
+
+*Revamped in May 2025 :) (original project 03-2023)*
+
