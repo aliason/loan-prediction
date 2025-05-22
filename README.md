@@ -41,7 +41,7 @@ Tools
 * R Markdown
 * Excel (codebook)
 
-## Notes
-GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
+-- 
+**Note**: GitHub doesn't natively render `.Rmd` files or interactive visualization within notebooks.
 * View the raw code [here](proj-final/project-final.Rmd)
 * View the full interactive report [here](https://aliason.github.io/loan-prediction) 
