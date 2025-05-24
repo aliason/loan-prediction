@@ -23,7 +23,7 @@ To begin: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, 
 
 The project concludes with a detailed summary of key takeaways and findings. 
 
-## Methods used 
+## Methods Used 
 * Data processing
     * Missing data (imputation via MICE)
     * Duplicates
@@ -34,10 +34,10 @@ The project concludes with a detailed summary of key takeaways and findings.
     * Correlation analysis (heatmaps, corrplots)
     * Inferential statistics 
 * Data modeling
-    * Models: logistic regression, LDA, KNN, QDA, elastic net (Ridge), pruned decision trees
+    * Models: logistic regression, LDA, KNN, QDA, elastic net (L2), pruned decision trees
     * Resampling: grid search, k-fold CV 
-    * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
-
+    * Evaluation: ROC-AUC, confusion matrix, lollipop plots
+ 
 Tools
 * R + libraries (`ggplot2`, `tidyverse`, `corrplot`, `MASS`, and more). 
 * R markdown
