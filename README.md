@@ -17,9 +17,9 @@ Note that only `train.csv` will be used in this project. A 70/30 split is perfor
 ## Project Roadmap  
 The project will follow a structured pipeline, starting with data processing and cleaning, followed by exploration, analysis, and modeling.
 
-First, I load the dataset into R, assess its structure, and perform initial data tidying to address errors and inconsistencies. Next, I conduct exploratory data analysis (EDA), extracting insights to guide further preprocessing. The dataset undergoes final tidying before modeling.
+First, I load the dataset into R, assess its structure, and perform initial data tidying to address inconsistencies. Next, I conduct exploratory data analysis (EDA), extracting insights to guide further preprocessing. The dataset undergoes final tidying before modeling.
 
-To begin: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and create 10 validation sets for resampling. Models are trained and tuned in separate `.rda` files before being loaded back in for evaluation. The top 3 models are selected for testing, and multiple visualizations are created for clarity.
+To begin: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and create 10 validation sets for resampling. Models are trained and tuned in separate `.rda` files, then loaded back in for evaluation. The top 3 models are selected for testing, and multiple visualizations are created for clarity.
 
 The project concludes with a detailed summary of key takeaways and findings. 
 
