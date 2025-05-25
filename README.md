@@ -19,7 +19,7 @@ The project will follow a structured workflow, starting with data processing and
 
 First, I load the dataset into R, assess its structure, and perform initial data tidying to address inconsistencies. Next, I conduct exploratory data analysis (EDA), extracting insights to guide further preprocessing. The dataset undergoes final tidying before modeling.
 
-For model setup: I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and create 10 validation sets for resampling. Models are trained and tuned in separate `.rda` files before being loaded back in for evaluation. The top 3 models are selected for testing and compared on ROC-AUC.
+Then, I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and create 10 validation sets for resampling. Models are trained and tuned in separate `.rda` files before being loaded back in for evaluation. The top 3 models are selected for testing and compared on ROC-AUC.
 
 The project concludes with a detailed summary of key takeaways and findings. 
 
