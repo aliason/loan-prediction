@@ -24,7 +24,7 @@ Then, I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and 
 The project concludes with a detailed summary of key takeaways and findings. 
 
 ## Methods Used 
-* Data processing
+* Preprocessing
     * Missing data (imputation via `MICE`)
     * Duplicates
     * Feature engineering (scaling, binning, categorical encoding)
