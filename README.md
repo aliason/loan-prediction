@@ -37,12 +37,8 @@ The project concludes with a detailed summary of key takeaways and findings.
         * Distribution analysis (histograms, barplots, scatterplots)
     * Inferential statistics (t-tests, ANOVA) 
 * Predictive modeling
-    * Techniques:
-        * GLMs: logistic regression, elstic net (L2)
-        * Discriminant analysis: LDA, QDA
-        * Proximity: KNN
-        * Tree-based models: pruned decision trees 
-    * Model tuning: grid search, k-fold CV
+    * Methods: GLMs (logistic, elastic net), discriminant (LDA, QDA), KNN, decision trees 
+    * Resampling: grid search, k-fold CV
     * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
  
 Tools
