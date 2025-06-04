@@ -38,7 +38,7 @@ The project concludes with a detailed summary of key takeaways and findings.
     * Inferential statistics (t-tests, ANOVA) 
 * Modeling
     * Methods: GLMs (logistic, elastic net), discriminant (LDA, QDA), KNN, decision trees 
-    * Resampling: grid search, k-fold CV
+    * Tuning: grid search, k-fold CV
     * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
  
 Tools
