@@ -36,7 +36,7 @@ The project concludes with a detailed summary of key takeaways and findings.
     * Feature analysis 
         * Distribution analysis (histograms, barplots, scatterplots)
     * Inferential statistics (t-tests, ANOVA) 
-* Predictive modeling
+* Modeling
     * Methods: GLMs (logistic, elastic net), discriminant (LDA, QDA), KNN, decision trees 
     * Resampling: grid search, k-fold CV
     * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
