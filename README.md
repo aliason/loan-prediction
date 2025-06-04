@@ -27,16 +27,20 @@ The project concludes with a detailed summary of key takeaways and findings.
 * Data processing
     * Missing data (imputation via MICE)
     * Duplicates
-    * Feature transformation (scaling, binning, categorical encoding)
-* EDA 
-    * Visualization (histograms, barplots, scatterplots)
-    * Feature analysis 
+    * Feature engineering (scaling, binning, categorical encoding)
+* Exploration 
     * Correlation analysis (heatmaps, corrplots)
-    * Inferential statistics 
+    * Feature analysis 
+        * Distribution analysis (histograms, barplots, scatterplots)
+    * Inferential statistics (t-tests, ANOVA) 
 * Data modeling
-    * Models: logistic regression, LDA, KNN, QDA, elastic net (L2), pruned decision trees
-    * Resampling: grid search, k-fold CV 
-    * Evaluation: ROC-AUC, confusion matrix, lollipop plots
+    * Techniques:
+        * GLMs: logistic regression, elstic net (L2)
+        * Discriminant analysis: LDA, QDA
+        * Proximity: KNN
+        * Tree-based models: pruned decision trees 
+    * Model tuning: grid search, k-fold CV
+    * Evaluation: ROC-AUC, confusion matrix, lollipop plots 
  
 Tools
 * R + libraries (`ggplot2`, `tidyverse`, `corrplot`, `MASS`, and more)
