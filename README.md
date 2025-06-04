@@ -24,16 +24,19 @@ Then, I perform a 70/30 split on `train.csv`, build a preprocessing recipe, and 
 The project concludes with a detailed summary of key takeaways and findings. 
 
 ## Methods Used 
-* Data processing
-    * Missing data (imputation via MICE)
+* Preprocessing
+    * Missing data (imputation via `MICE`)
     * Duplicates
     * Feature engineering (scaling, binning, categorical encoding)
+    * Data transformation
+        * Log-transform (skewed data) 
+        * Naive (random) oversampling (via `themis`) 
 * Exploration 
     * Correlation analysis (heatmaps, corrplots)
     * Feature analysis 
         * Distribution analysis (histograms, barplots, scatterplots)
     * Inferential statistics (t-tests, ANOVA) 
-* Data modeling
+* Predictive modeling
     * Techniques:
         * GLMs: logistic regression, elstic net (L2)
         * Discriminant analysis: LDA, QDA
