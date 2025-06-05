@@ -26,7 +26,6 @@ The project concludes with a detailed summary of key takeaways and findings.
 ## Methods Used 
 * Preprocessing
     * Missing data (imputation via `MICE`)
-    * Duplicate handling 
     * Feature engineering (scaling, binning, categorical encoding)
     * Data transformation
         * Log-transform (skewed data) 
